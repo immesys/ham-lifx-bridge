@@ -38,11 +38,13 @@ func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
 	}
 	hamdata := HamiltonData{}
 	ham.(bw.MsgPackPayloadObject).ValueInto(&hamdata)
-	fmt.Printf("hamilton data is %v\n", hamdata)
+	fmt.Printf("hamilton data is %#v\n", hamdata)
+
+	//Feel free to change this, but this will kinda work
 	lc := &LifxCommand{
-		Hue:   0.0, /*JACK DO THIS*/
-		Sat:   0.0, /*JACK DO THIS*/
-		Bri:   0.0, /*JACK DO THIS*/
+		Hue:   4.0 * float64(hamdata.Buttons%4),
+		Sat:   1.0,
+		Bri:   1.0,
 		State: true,
 	}
 	po, _ := bw.CreateMsgPackPayloadObject(bw.PONumHSBLightMessage, lc)
