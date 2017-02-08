@@ -18,8 +18,9 @@ func main() {
 		AutoChain: true,
 	})
 	for m := range subchan {
-		procMsg(bwc, m)
+		go procMsg(bwc, m)
 	}
+	fmt.Printf("subscription channel ended\n")
 }
 
 type LifxCommand struct {
