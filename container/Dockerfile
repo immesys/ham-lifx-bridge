@@ -1,4 +1,4 @@
-from ubuntu:xenial
+from immesys/spawnpoint:amd64
 
 run mkdir /wd
 workdir /wd
