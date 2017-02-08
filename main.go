@@ -9,8 +9,12 @@ import (
 func main() {
 	bwc := bw.ConnectOrExit("")
 	bwc.SetEntityFromEnvironOrExit()
+	RealURI := "amplab/sensors/s.hamilton/00126d0700000061/i.temperature/signal/operative"
+	FakeURI := "amplab/sensors/s.hamilton/00126d0700000065/i.temperature/signal/operative"
+	_ = RealURI
+	_ = FakeURI
 	subchan := bwc.SubscribeOrExit(&bw.SubscribeParams{
-		URI:       "amplab/sensors/s.hamilton/00126d0700000061/i.temperature/signal/operative",
+		URI:       FakeURI,
 		AutoChain: true,
 	})
 	for m := range subchan {
@@ -31,6 +35,8 @@ type HamiltonData struct {
 	RH      float64 `msgpack:"air_rh"`
 }
 
+var LastData HamiltonData
+
 func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
 	ham := m.GetOnePODF("2.0.11.2")
 	if ham == nil {
@@ -39,7 +45,10 @@ func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
 	hamdata := HamiltonData{}
 	ham.(bw.MsgPackPayloadObject).ValueInto(&hamdata)
 	fmt.Printf("hamilton data is %#v\n", hamdata)
-
+	if hamdata == LastData {
+		return
+	}
+	LastData = hamdata
 	//Feel free to change this, but this will kinda work
 	lc := &LifxCommand{
 		Hue:   4.0 * float64(hamdata.Buttons%4),
