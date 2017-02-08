@@ -7,8 +7,11 @@ import (
 )
 
 func main() {
+	fmt.Printf("connecting to BW\n")
 	bwc := bw.ConnectOrExit("")
+	fmt.Printf("setting entity\n")
 	bwc.SetEntityFromEnvironOrExit()
+	fmt.Printf("connected and set entity ok\n")
 	RealURI := "amplab/sensors/s.hamilton/00126d0700000061/i.temperature/signal/operative"
 	FakeURI := "amplab/sensors/s.hamilton/00126d0700000065/i.temperature/signal/operative"
 	_ = RealURI
@@ -17,6 +20,7 @@ func main() {
 		URI:       FakeURI,
 		AutoChain: true,
 	})
+	fmt.Printf("subscribed to hamiltons ok\n")
 	for m := range subchan {
 		go procMsg(bwc, m)
 	}
@@ -39,14 +43,17 @@ type HamiltonData struct {
 var LastData HamiltonData
 
 func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
+	fmt.Printf("got a message\n")
 	ham := m.GetOnePODF("2.0.11.2")
 	if ham == nil {
+		fmt.Printf("No PO found, skipping\n")
 		return
 	}
 	hamdata := HamiltonData{}
 	ham.(bw.MsgPackPayloadObject).ValueInto(&hamdata)
 	fmt.Printf("hamilton data is %#v\n", hamdata)
 	if hamdata == LastData {
+		fmt.Printf("data is the same, skipping\n")
 		return
 	}
 	LastData = hamdata
@@ -57,9 +64,11 @@ func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
 		Bri:   1.0,
 		State: true,
 	}
-	po, _ := bw.CreateMsgPackPayloadObject(bw.PONumHSBLightMessage, lc)
+	po, err := bw.CreateMsgPackPayloadObject(bw.PONumHSBLightMessage, lc)
+	fmt.Printf("create LIFX PO err=%v\n", err)
 	bwc.PublishOrExit(&bw.PublishParams{
 		URI:            "ucberkeley/eop/lifx/s.lifx/0/i.hsb-light",
 		PayloadObjects: []bw.PayloadObject{po},
+		AutoChain:      true,
 	})
 }
