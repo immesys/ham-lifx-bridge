@@ -17,7 +17,7 @@ func main() {
 	_ = RealURI
 	_ = FakeURI
 	subchan := bwc.SubscribeOrExit(&bw.SubscribeParams{
-		URI:       FakeURI,
+		URI:       RealURI,
 		AutoChain: true,
 	})
 	fmt.Printf("subscribed to hamiltons ok\n")
