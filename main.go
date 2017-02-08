@@ -51,7 +51,7 @@ func procMsg(bwc *bw.BW2Client, m *bw.SimpleMessage) {
 	LastData = hamdata
 	//Feel free to change this, but this will kinda work
 	lc := &LifxCommand{
-		Hue:   4.0 * float64(hamdata.Buttons%4),
+		Hue:   4.0 * (float64(hamdata.Buttons%4) / 4.0),
 		Sat:   1.0,
 		Bri:   1.0,
 		State: true,
